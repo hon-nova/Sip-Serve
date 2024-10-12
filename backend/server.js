@@ -47,14 +47,11 @@ const readMenu = async (CSVFILE) => {
    return sortedMealsArray  
 
    }
-
 // readMenu(csvFile);
 app.get("/menu",async (req,res)=>{
 
    try {
-      const menu = await readMenu(csvFile)
-      // console.log(`menu`)
-      // console.log(menu)
+      const menu = await readMenu(csvFile)      
       return res.status(200).json({menu: menu, successMsg:'Successfully retrieving menu'})
    } catch(error){
       console.log(`ERROR reading file::${error}`)

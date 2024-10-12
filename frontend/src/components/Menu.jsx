@@ -1,7 +1,9 @@
 import '../../src/css/base.css'
+import '../../src/css/menu-style.css'
 import { getMenu} from '../store/index'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
+import { NavBar} from './NavBar'
 
 export const Menu =()=>{
    const dispatch = useDispatch()
@@ -10,38 +12,54 @@ export const Menu =()=>{
    console.log(menu)
 
    useEffect(() => {
-      dispatch(getMenu());  // Fetch the menu data when the component mounts
+      dispatch(getMenu());  
     }, [dispatch]);
 
    if (status === 'loading') {
-      return <div>Loading...</div>;  // Show loading indicator
+      return <div>Loading...</div>; 
     }
   
    if (status === 'failed') {
-      return <div>Error: {error}</div>;  // Show error message
+      return <div>Error: {error}</div>;  
+    }
+    const handleAddToCart =(mealObj)=>{
+        dispatch(addToCart(mealObj))
     }
 
    return (
-      <div>
-         <div className="titleBar" style={{ background: 'linear-gradient(to right, lightgrey, #4dc8fa)' }}>
-            <h1 className="title">Menu - Orders</h1>
+      <div className="menuContainer">
+      <div><NavBar/></div>
+         <div className="titleBar">
+            <h1 className="title">Main Menu</h1>
             <ul>
                 {menu.map((item, index) => {
                     const mealType = Object.keys(item)[0];  
                     const meals = item[mealType];  
                     return (
                         <li key={index}>
-                            <h2>{mealType}</h2>
+                            <h2 className="mealType">{mealType}</h2>
                             <ul>
+                            <div className="row my-2">
                                 {meals.map((meal, mealIndex) => {
                                     const [name, quantity, price, photo] = meal.split(',');
+                                    const mealObj = { name, quantity, price, photo };
                                     return (
-                                        <li key={mealIndex}>
-                                            <img src={photo} alt={name} style={{ width: '220px', height: '200px' }} />
-                                            <span>{name} - {quantity} - {price}</span>
-                                        </li>
+                                        
+                                        <li key={mealIndex} className="col-md-5 meal">
+                                        <div className="d-flex">
+                                             <img src={photo} alt={name} style={{ width: '280px', height: '240px' }} />
+                                             <div className="mealDetails">
+                                                <p style={{ flex: '1' }}>{name} - {quantity} - {price}</p>
+                                               <footer>
+                                                <button className="viewBtn" onClick={()=>handleAddToCart(mealObj)}>Order</button>
+                                               </footer>
+                                             </div>
+                                        </div>
+                                        </li>                                    
+                                       
                                     );
                                 })}
+                                </div>
                             </ul>
                         </li>
                     );

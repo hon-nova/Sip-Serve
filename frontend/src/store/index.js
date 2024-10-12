@@ -6,8 +6,8 @@ export const getMenu = createAsyncThunk('menu/fetchMenu', async () => {
    if(!response.ok){
       throw new Error(`Errors fetching data from the db`)
    }
-   const text = await response.text();  
-     
+   // const result = await response.json()
+   const text = await response.text();     
    const data = JSON.parse(text)  
    return data.menu;  
  });
@@ -46,11 +46,54 @@ const menuSlice  = createSlice({
         });
     }
 })
+const cartSlice = createSlice({
+   name: 'cart',
+   initialState:{cart:[]},
+   reducers: {
+      addToCart(state,action){
+         let existingItem = state.cart.find((item)=>item.id===action.payload.id)
+         if(existingItem){            
+            existingItem.quantity+=1
+         }
+         state.cart.push({...action.payload,quantity:1})
+         
+      },
+      removeFromCart(state,action){
+         let thisIndex=state.cart.findIndex((item)=>item.id===action.payload.id)
+         if (thisIndex!==-1){
+            state.cart.filter((item)=>item.id!==thisIndex)
+         }
+      },
+      updateQuantityCart(state,action){
+         //TODO
+         const existingItem =state.cart.find((item)=>item.id===action.payload.id)
+         const { id,changeType } = action.payload
+         console.log(`changeType::${changeType}`)
+         console.log(`id::${id}`)
+         if(existingItem){
+            if(changeType === 'increase'){
+               if(existingItem.quantity<10){
+                   existingItem.quantity+=1
+               }                 
+            } else if(changeType === 'decrease'){
+               if(existingItem.quantity > 1){
+                  existingItem.quantity-=1
+               }
+            } else if(changeType === 'input'){
+               let newQuantity = action.payload.quantity
+               existingItem.quantity = newQuantity
+            }
+         }
+      }
+   }
+})
+export const cartActions = cartSlice.actions
 export const menuActions = menuSlice.actions
 //configure store
 const store = configureStore({
    reducer: {
-      menu: menuSlice.reducer
+      menu: menuSlice.reducer,
+      cart: cartSlice.reducer
    }
 })
 export default store
