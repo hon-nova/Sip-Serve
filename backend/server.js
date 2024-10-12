@@ -7,6 +7,8 @@ const { EOL } = require("os");
 const fs = require("node:fs/promises");
 const csvFile = path.join(__dirname, "menu.csv");
 const txtFile = path.join(__dirname, "menu.txt");
+const { v4: uuidv4 } = require('uuid');
+
 
 const app = express();
 app.use(cors());
@@ -25,14 +27,15 @@ const readMenu = async (CSVFILE) => {
       let [mealType, mealName, mealQuantity, price, photo] = lineArray;         
       let mealTypeUppercase =
             mealType.slice(0, 1).toUpperCase() + mealType.slice(1);
-      
+      // const newUUID = uuidv4();
       let existingObj = mealsArray.find((item)=>item[mealTypeUppercase])
-
+      const id = uuidv4()
+      // console.log(`uuid:  ${id}`)
       if(existingObj){
-         existingObj[mealTypeUppercase].push(`${mealName},${mealQuantity},${price},${photo}`)
+         existingObj[mealTypeUppercase].push(`${id},${mealName},${mealQuantity},${price},${photo}`)
       } else {
          let newObj ={}
-         newObj[mealTypeUppercase] = [`${mealName},${mealQuantity},${price},${photo}`]
+         newObj[mealTypeUppercase] = [`${id},${mealName},${mealQuantity},${price},${photo}`]
          mealsArray.push(newObj)        
       }  
    

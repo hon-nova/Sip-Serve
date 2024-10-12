@@ -6,7 +6,7 @@ import { updateQuantityCart, removeFromCart } from "../store"
 export const Cart =()=>{
 
    const cartItems = useSelector((state)=>state.cart.cart)
-   console.log(`cartItem in Cart`, cartItems)
+   console.log(`length cartItem in Cart`, cartItems.length)
    const dispatch = useDispatch()
    useEffect(() => {
       console.log(`useEffect cartItem in Cart`, cartItems);
@@ -14,8 +14,7 @@ export const Cart =()=>{
 
    return (
       <div>      
-         <h1>My Cart</h1>
-         {JSON.stringify(cartItems)}
+         <h1>My Cart</h1>        
          <div className="row">
             <div className="col-md-9" style={{ border:"1px solid red" }}>                     
                {cartItems.map((item,index)=>(    

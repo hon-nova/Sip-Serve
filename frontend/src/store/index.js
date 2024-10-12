@@ -2,7 +2,6 @@ import {configureStore, createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
 export const getMenu = createAsyncThunk('menu/fetchMenu', async () => {
    const response = await fetch('http://localhost:3001/menu');
-   console.log('Response:', response);
    if(!response.ok){
       throw new Error(`Errors fetching data from the db`)
    }
@@ -48,14 +47,17 @@ const menuSlice  = createSlice({
 })
 const cartSlice = createSlice({
    name: 'cart',
-   initialState:{cart:[]},
+   initialState: {cart:[]},
    reducers: {
       addToCart(state,action){
          const existingItem = state.cart.find((item)=>item.id===action.payload.id)
-         if(existingItem){            
+         if(!existingItem){       
+            state.cart.push({...action.payload, quantity:1})       
+           
+         } else {
             existingItem.quantity+=1
          }
-         state.cart.push({...action.payload, quantity:1})         
+                
       },
       removeFromCart(state,action){
          

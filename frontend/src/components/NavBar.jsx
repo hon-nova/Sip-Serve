@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 export const NavBar =()=>{
 
    const cartItems = useSelector((state)=>state.cart.cart)
-   console.log(`cartItem in NavBar`, cartItems)
+   console.log(`length: cartItems: ${cartItems.length}`)
    return (
       <div className="d-flex justify-content-between nav">
          <div className="d-flex">

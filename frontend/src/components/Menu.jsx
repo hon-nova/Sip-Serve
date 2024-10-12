@@ -7,8 +7,8 @@ import { useEffect } from 'react'
 export const Menu =()=>{
    const dispatch = useDispatch()
    const { menu, status, error } = useSelector((state)=>state.menu)
-   console.log(`menu`)
-   console.log(menu)
+//    console.log(`menu`)
+//    console.log(menu)
 
    useEffect(() => {
       dispatch(getMenu());  
@@ -39,8 +39,8 @@ export const Menu =()=>{
                             <ul>
                             <div className="row my-2">
                                 {meals.map((meal, mealIndex) => {
-                                    const [name, quantity, price, photo] = meal.split(',');
-                                    const mealObj = { mealType,name, quantity, price, photo };
+                                    const [id,name, quantity, price, photo] = meal.split(',');
+                                    const mealObj = { mealType,id,name, quantity, price, photo };
                                     return (
                                         
                                         <li key={mealIndex} className="col-md-5 meal">
