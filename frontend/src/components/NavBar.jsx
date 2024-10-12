@@ -4,7 +4,12 @@ import { Link } from 'react-router-dom'
 export const NavBar =()=>{
 
    const cartItems = useSelector((state)=>state.cart.cart)
-   console.log(`length: cartItems: ${cartItems.length}`)
+   const cartQuantity = cartItems.reduce((total,{quantity})=>{
+      total+=quantity
+      return total
+   },0)
+   // console.log(`cartQuantity: ${cartQuantity}`)
+   // console.log(`length: cartItems: ${cartQuantity}`)
    return (
       <div className="d-flex justify-content-between nav">
          <div className="d-flex">
@@ -14,7 +19,7 @@ export const NavBar =()=>{
          </div>
          <div className="d-flex">
             <p className="mx-3"><Link to="/register">Register</Link></p>
-            <p className="mx-3"><Link to="/cart"><i className="bi bi-cart4"></i></Link><span className="myCart">{cartItems.length <10 ? `0`+cartItems.length:cartItems.length}</span></p>
+            <p className="mx-3"><Link to="/cart"><i className="bi bi-cart4"></i></Link><span className="myCart">{cartQuantity <10 ? `0`+cartQuantity:cartQuantity}</span></p>
          </div>
       </div>
    )
