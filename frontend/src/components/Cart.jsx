@@ -2,6 +2,7 @@
 import { useDispatch, useSelector } from "react-redux"
 import { useEffect } from "react"
 import { updateQuantityCart, removeFromCart } from "../store"
+
 export const Cart =()=>{
 
    const cartItems = useSelector((state)=>state.cart.cart)
@@ -12,7 +13,7 @@ export const Cart =()=>{
   }, [cartItems]); // Log whenever cartItems change
 
    return (
-      <div>
+      <div>      
          <h1>My Cart</h1>
          {JSON.stringify(cartItems)}
          <div className="row">

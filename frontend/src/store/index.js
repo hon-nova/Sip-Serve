@@ -34,15 +34,15 @@ const menuSlice  = createSlice({
    extraReducers: (builder) => {
       builder
         .addCase(getMenu.pending, (state) => {
-          state.status = 'loading';  // Set loading status
+          state.status = 'loading'; 
         })
         .addCase(getMenu.fulfilled, (state, action) => {
-          state.status = 'succeeded';  // Update status
-          state.menu = action.payload;  // Store fetched menu data
+          state.status = 'succeeded'; 
+          state.menu = action.payload; 
         })
         .addCase(getMenu.rejected, (state, action) => {
-          state.status = 'failed';  // Update status
-          state.error = action.error.message;  // Store error message
+          state.status = 'failed'; 
+          state.error = action.error.message;
         });
     }
 })
@@ -55,8 +55,7 @@ const cartSlice = createSlice({
          if(existingItem){            
             existingItem.quantity+=1
          }
-         state.cart.push({...action.payload, quantity:1})
-         
+         state.cart.push({...action.payload, quantity:1})         
       },
       removeFromCart(state,action){
          

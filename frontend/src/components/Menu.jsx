@@ -3,7 +3,6 @@ import '../../src/css/menu-style.css'
 import { getMenu, addToCart} from '../store/index'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
-import { NavBar} from './NavBar'
 
 export const Menu =()=>{
    const dispatch = useDispatch()
@@ -28,7 +27,6 @@ export const Menu =()=>{
 
    return (
       <div className="menuContainer">
-      <div><NavBar/></div>
          <div className="titleBar">
             <h1 className="title">Main Menu</h1>
             <ul>
