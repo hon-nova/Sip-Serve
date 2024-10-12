@@ -86,11 +86,24 @@ const cartSlice = createSlice({
 })
 export const {addToCart, removeFromCart, updateQuantityCart} = cartSlice.actions
 export const menuActions = menuSlice.actions
+
+const totalPaySlice = createSlice({
+   name:'totalPay',
+   initialState: 0,
+   reducers: {
+      setTotalPay(state,action){
+         return action.payload
+      }
+   }
+})
+export const {setTotalPay } = totalPaySlice.actions
+
 //configure store
 const store = configureStore({
    reducer: {
       menu: menuSlice.reducer,
-      cart: cartSlice.reducer
+      cart: cartSlice.reducer,
+      totalPay:totalPaySlice.reducer
    }
 })
 export default store

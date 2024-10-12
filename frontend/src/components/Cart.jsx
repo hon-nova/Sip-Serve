@@ -1,8 +1,9 @@
-
+import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { updateQuantityCart, removeFromCart } from "../store"
+import { updateQuantityCart, removeFromCart,setTotalPay } from "../store"
 import '../css/cart-style.css'
 import { Link } from 'react-router-dom'
+
 
 export const Cart =()=>{
 
@@ -21,22 +22,23 @@ export const Cart =()=>{
       return acc
    },0)
    
-  console.log(`total::`,subT); 
+  
   let fiveP =(subT*0.05)
   let sevenP =(subT*0.07)
   let totalTaxes = fiveP + sevenP
   let estTotal = parseFloat(subT + totalTaxes)
-
+  console.log(`estTotal::`,estTotal); 
+  useEffect(()=>{
+      dispatch(setTotalPay(estTotal))
+  },[estTotal,dispatch])
    return (
       <div className="container">      
          <h1>My Cart</h1>        
          <div className="row">
             <div className="col-md-8" style={{ border:"1px solid #d0d0d5" }}>                     
-               {cartItems.map((item,index)=>(  
-                    
+               {cartItems.map((item,index)=>(                      
                   <div className="row my-2" key={index}>   
-                  <div className="col" >
-                             
+                  <div className="col" >                             
                      <div className="d-flex" >
                         <img src={item.photo} className="myCartImage" alt=""/>
                         <div className="d-flex">
@@ -90,11 +92,9 @@ export const Cart =()=>{
             </div>
             <div className="mt-5 d-flex justify-content-center">
                <Link to="/payment" className="processToPay" >Continue to process</Link>
+            </div>               
             </div>
-               
-            </div>
-         </div>
-        
+         </div>        
       </div>
    )
 }
