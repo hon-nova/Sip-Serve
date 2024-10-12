@@ -1,6 +1,6 @@
 import '../../src/css/base.css'
 import '../../src/css/menu-style.css'
-import { getMenu} from '../store/index'
+import { getMenu, addToCart} from '../store/index'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
 import { NavBar} from './NavBar'

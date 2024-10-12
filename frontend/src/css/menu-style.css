@@ -1,4 +1,6 @@
-
+.menuContainer {
+   margin-top:60px;
+}
 .titleBar {
    background: linear-gradient(to right, lightgrey, #4dc8fa); 
    padding-left:100px; 

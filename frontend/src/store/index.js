@@ -87,7 +87,7 @@ const cartSlice = createSlice({
       }
    }
 })
-export const cartActions = cartSlice.actions
+export const {addToCart, removeFromCart, updateQuantityCart} = cartSlice.actions
 export const menuActions = menuSlice.actions
 //configure store
 const store = configureStore({

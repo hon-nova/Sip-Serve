@@ -1,8 +1,10 @@
-import { useDispatch } from "react-redux"
-import { cartActions } from "../store"
+import { useDispatch, useSelector } from "react-redux"
+import { updateQuantityCart, removeFromCart } from "../store"
 export const Cart =()=>{
 
-   const cartItems = useDispatch((state=>state.cart))
+   
+   const cartItems = useSelector((state)=>state.cart.cart)
+
    console.log(`cartItem in Cart`, cartItems)
    const dispatch = useDispatch()
 
@@ -20,11 +22,10 @@ export const Cart =()=>{
                         <li><img src={item.photo} alt="" width="280" height="240"/></li>
                         <li>detail</li>
                         <li>
-                           <button onClick={()=>dispatch(cartActions.updateQuantityCart({id:item.id,changeType:'decrease'}))}>-</button>
+                           <button onClick={()=>dispatch(updateQuantityCart({id:item.id,changeType:'decrease'}))}>-</button>
                            <input type="number" name="quantity" value={item.quantity} 
-                              onChange={(e)=>dispatch(cartActions.updateQuantityCart({id:item.id,changeType:'input',quantity:e.target.value}))}/>
-                          <button onClick={()=>dispatch(cartActions.updateQuantityCart({id:item.id,changeType:'increase'}))}>+</button>
-                           
+                              onChange={(e)=>dispatch(updateQuantityCart({id:item.id,changeType:'input',quantity:e.target.value}))}/>
+                          <button onClick={()=>dispatch(updateQuantityCart({id:item.id,changeType:'increase'}))}>+</button>                           
                         </li>
                      </ul> 
                   </div>
