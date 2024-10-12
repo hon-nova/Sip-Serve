@@ -51,18 +51,16 @@ const cartSlice = createSlice({
    initialState:{cart:[]},
    reducers: {
       addToCart(state,action){
-         let existingItem = state.cart.find((item)=>item.id===action.payload.id)
+         const existingItem = state.cart.find((item)=>item.id===action.payload.id)
          if(existingItem){            
             existingItem.quantity+=1
          }
-         state.cart.push({...action.payload,quantity:1})
+         state.cart.push({...action.payload, quantity:1})
          
       },
       removeFromCart(state,action){
-         let thisIndex=state.cart.findIndex((item)=>item.id===action.payload.id)
-         if (thisIndex!==-1){
-            state.cart.filter((item)=>item.id!==thisIndex)
-         }
+         
+         state.cart = state.cart.filter(item => item.id !== action.payload.id);
       },
       updateQuantityCart(state,action){
          //TODO

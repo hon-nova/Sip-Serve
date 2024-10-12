@@ -42,7 +42,7 @@ export const Menu =()=>{
                             <div className="row my-2">
                                 {meals.map((meal, mealIndex) => {
                                     const [name, quantity, price, photo] = meal.split(',');
-                                    const mealObj = { name, quantity, price, photo };
+                                    const mealObj = { mealType,name, quantity, price, photo };
                                     return (
                                         
                                         <li key={mealIndex} className="col-md-5 meal">

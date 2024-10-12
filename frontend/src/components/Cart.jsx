@@ -1,21 +1,23 @@
+
 import { useDispatch, useSelector } from "react-redux"
+import { useEffect } from "react"
 import { updateQuantityCart, removeFromCart } from "../store"
 export const Cart =()=>{
 
-   
    const cartItems = useSelector((state)=>state.cart.cart)
-
    console.log(`cartItem in Cart`, cartItems)
    const dispatch = useDispatch()
+   useEffect(() => {
+      console.log(`useEffect cartItem in Cart`, cartItems);
+  }, [cartItems]); // Log whenever cartItems change
 
    return (
       <div>
          <h1>My Cart</h1>
-         {}
+         {JSON.stringify(cartItems)}
          <div className="row">
-            <div className="col-md-9" style={{ border:"1px solid red" }}>
-                               
-               {cartItems.length>0 && cartItems.map((item,index)=>(    
+            <div className="col-md-9" style={{ border:"1px solid red" }}>                     
+               {cartItems.map((item,index)=>(    
                   <div className="row my-2" key={index}>   
                   <div className="col" >           
                      <ul className="d-flex" >
