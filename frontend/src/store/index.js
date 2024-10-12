@@ -56,11 +56,9 @@ const cartSlice = createSlice({
            
          } else {
             existingItem.quantity+=1
-         }
-                
+         }    
       },
-      removeFromCart(state,action){
-         
+      removeFromCart(state,action){         
          state.cart = state.cart.filter(item => item.id !== action.payload.id);
       },
       updateQuantityCart(state,action){

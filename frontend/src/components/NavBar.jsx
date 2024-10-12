@@ -13,8 +13,8 @@ export const NavBar =()=>{
    return (
       <div className="d-flex justify-content-between nav">
          <div className="d-flex">
-            <p className="mx-3"><Link to="/">Logo</Link></p>
-            <p className="mx-3"><Link to="/">Home</Link></p>
+            <p className="mx-3"><Link to="/"><img src="/logo.png" alt="logo" width="70px" height="60px"/></Link></p>
+           
             <p className="mx-3"><Link to="/menu">Menu</Link></p>
          </div>
          <div className="d-flex">

@@ -5,7 +5,7 @@ import { HomePage } from './components/HomePage'
 import { Menu } from './components/Menu'
 import { Cart } from './components/Cart'
 import { RootLayout } from './components/RootLayout';
-// import { NavBar } from './components/NavBar';
+import { Payment } from './components/Payment';
 
 function App() {
 
@@ -15,6 +15,7 @@ function App() {
       <Route index element={<HomePage/>}></Route>
       <Route path="/cart" element={<Cart />}></Route>
       <Route path="/menu" element={<Menu />}></Route>
+      <Route path="/payment" element={<Payment/>}></Route>
     </Route>
   ))
   return (

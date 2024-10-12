@@ -1,20 +1,15 @@
 
 import { useDispatch, useSelector } from "react-redux"
-import { useEffect } from "react"
 import { updateQuantityCart, removeFromCart } from "../store"
 import '../css/cart-style.css'
+import { Link } from 'react-router-dom'
 
 export const Cart =()=>{
 
    const cartItems = useSelector((state)=>state.cart.cart)
    console.log(`length cartItem in Cart`, cartItems.length)
    const dispatch = useDispatch()
-
-//    useEffect(() => {
-//       console.log(`useEffect cartItem in Cart`, cartItems);
-//   }, [cartItems]); 
-
-  
+ 
   let subTotals =[]
   cartItems.reduce((total, {price,quantity})=>{
      let sub = parseFloat(price.replace('$','')) * quantity      
@@ -36,7 +31,7 @@ export const Cart =()=>{
       <div className="container">      
          <h1>My Cart</h1>        
          <div className="row">
-            <div className="col-md-8" style={{ border:"1px solid red" }}>                     
+            <div className="col-md-8" style={{ border:"1px solid #d0d0d5" }}>                     
                {cartItems.map((item,index)=>(  
                     
                   <div className="row my-2" key={index}>   
@@ -72,9 +67,9 @@ export const Cart =()=>{
                </div>
                ))}
             </div>
-            <div className="col-md-4" style={{ border:"1px solid green" }}>
-               {/* for displaying the est. total */}
-              <table className="equal-width-table">
+            <div className="col-md-4" style={{ border:"1px solid #d0d0d5" }}>
+            <div>
+               <table className="equal-width-table">
                <tr>
                   <td>Sub:</td><td></td><td>$ {subT.toFixed(2)}</td>
                </tr>
@@ -92,6 +87,11 @@ export const Cart =()=>{
                   <td>Estimate:</td><td></td><td style={{ borderBottom:"5px double black" }}>$ {parseFloat(estTotal).toFixed(2)}</td>
                </tr> 
               </table>
+            </div>
+            <div className="mt-5 d-flex justify-content-center">
+               <Link to="/payment" className="processToPay" >Continue to process</Link>
+            </div>
+               
             </div>
          </div>
         
