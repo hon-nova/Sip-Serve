@@ -17,13 +17,15 @@ export const Payment =()=>{
    const cartItems = useSelector((state)=>state.cart)
    const totalPay  = useSelector((state)=>state.totalPay)
   
+   console.log(`clientSecret: `,clientSecret)
    console.log(`cartItems: `,cartItems)
    console.log(`totalPay: `,totalPay)
    
 
    useEffect(()=>{
       if(cartItems && cartItems.length >0 ){
-          dispatch(getMyStripe(cartItems,totalPay))
+         console.log(`dispatch getMyStripe useEffect:  `,dispatch(getMyStripe()))
+          dispatch(getMyStripe({cartItems,totalPay}))
       }
      
    },[dispatch,cartItems,totalPay])
@@ -36,8 +38,11 @@ export const Payment =()=>{
    }
    if(status === statusCode.IDLE && clientSecret){
       const options = {
-         clientSecret
+         clientSecret,
+         cartItems,
+         totalPay
       }
+      console.log(`options: `,options.clientSecret)
       return(
          <div className="container">
          <h2>Payment</h2>
@@ -51,10 +56,8 @@ export const Payment =()=>{
    
 }
 const CheckoutForm = () => {
-   // Using the Stripe custom checkout hook
-   const checkout = useCustomCheckout();
- 
-   // Example: Displaying the checkout line items (for now logging)
+   
+   const checkout = useCustomCheckout();   
    console.log(checkout);
  
    return (
