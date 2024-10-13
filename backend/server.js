@@ -8,7 +8,7 @@ const fs = require("node:fs/promises");
 const csvFile = path.join(__dirname, "menu.csv");
 const txtFile = path.join(__dirname, "menu.txt");
 const { v4: uuidv4 } = require('uuid');
-import dotenv from 'dotenv'
+const dotenv =require('dotenv') 
 
 dotenv.config()
 
@@ -18,30 +18,35 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 /** STRIPE */
-const stripe = require('stripe')(process.env.REACT_APP_STRIPE_SECRET_KEY, {
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY, {
    apiVersion: '2024-09-30.acacia; custom_checkout_beta=v1;',
  });
 
- app.post('/create-checkout-session', async (req, res) => {
-   const session = await stripe.checkout.sessions.create({
-     line_items: [
-       {
-         price_data: {
-           currency: 'usd',
-           product_data: {
-             name: 'T-shirt',
-           },
-           unit_amount: 2000,
+app.post('/create-checkout-session', async (req, res) => {
+   console.log(`create-checkout-session triggered`)
+   const {items, totalAmount } = req.body
+   console.log(`items `,items)
+   console.log(`totalAmount `,totalAmount)
+   const lineItems = items.map((item) => ({
+      price_data: {
+         currency: 'usd',
+         product_data: {
+         name: item.name, 
          },
-         quantity: 1,
-       },
-     ],
-     mode: 'payment',
-     ui_mode: 'custom',
-     // The URL of your payment completion page
-     return_url: '{{RETURN_URL}}'
-   });
+         unit_amount: item.price * 100, 
+      },
+      quantity: item.quantity, 
+  }));
  
+   const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: lineItems,
+      mode: 'payment',
+      success_url: 'http://localhost:3000/success',
+      cancel_url: 'http://localhost:3000/cancel',
+   });
+
+   // res.json({ clientSecret: session.id });
    res.json({clientSecret: session.client_secret});
  });
 /** END STRIPE */

@@ -10,6 +10,7 @@ export const Cart =()=>{
    const cartItems = useSelector((state)=>state.cart.cart)
    console.log(`length cartItem in Cart`, cartItems.length)
    const dispatch = useDispatch()
+  
  
   let subTotals =[]
   cartItems.reduce((total, {price,quantity})=>{
@@ -31,6 +32,8 @@ export const Cart =()=>{
   useEffect(()=>{
       dispatch(setTotalPay(estTotal))
   },[estTotal,dispatch])
+
+ 
    return (
       <div className="container">      
          <h1>My Cart</h1>        
@@ -72,6 +75,7 @@ export const Cart =()=>{
             <div className="col-md-4" style={{ border:"1px solid #d0d0d5" }}>
             <div>
                <table className="equal-width-table">
+               <tbody>
                <tr>
                   <td>Sub:</td><td></td><td>$ {subT.toFixed(2)}</td>
                </tr>
@@ -84,10 +88,11 @@ export const Cart =()=>{
                <tr>
                <td>Total taxes:</td><td></td><td>$ {totalTaxes.toFixed(2)}</td>
                </tr>
-               <hr/>
+               {/* <hr/> */}
                <tr>
                   <td>Estimate:</td><td></td><td style={{ borderBottom:"5px double black" }}>$ {parseFloat(estTotal).toFixed(2)}</td>
                </tr> 
+               </tbody>
               </table>
             </div>
             <div className="mt-5 d-flex justify-content-center">

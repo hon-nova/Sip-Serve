@@ -1,12 +1,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import statusCode from "../utils/statusCode";
-import { useDispatch,useSelector } from "react-redux";
+// import { useDispatch,useSelector } from "react-redux";
 
 // const cartItems = useSelector((state)=>state.cart)
 
-export const getMyStripe = createAsyncThunk("myStripe/get", async (_,{ getState }) => {
-
+export const getMyStripe = createAsyncThunk("myStripe/get", async (cartItems,totalAmount) => {
+  
+   console.log(`cartItems:: ${cartItems}`)
+   console.log(`totalAmount `,totalAmount)
   try {
     const response = await fetch(
       "http://localhost:3001/create-checkout-session",
@@ -15,7 +17,10 @@ export const getMyStripe = createAsyncThunk("myStripe/get", async (_,{ getState 
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify()
+        body: JSON.stringify({
+         items: cartItems,
+         totalAmount: totalAmount
+        })
       }
     );
     if (!response.ok) {

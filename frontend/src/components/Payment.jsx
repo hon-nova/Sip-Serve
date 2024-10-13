@@ -7,19 +7,26 @@ import { useEffect } from "react";
 import { getMyStripe } from '../slices/paymentSlice'
 import { Elements } from '@stripe/react-stripe-js';
 
+
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
 export const Payment =()=>{
    
    const dispatch = useDispatch()
    const { data: clientSecret, status, error } = useSelector((state) => state.myStripe);
+   const cartItems = useSelector((state)=>state.cart)
+   const totalPay  = useSelector((state)=>state.totalPay)
+  
+   console.log(`cartItems: `,cartItems)
+   console.log(`totalPay: `,totalPay)
+   
 
    useEffect(()=>{
-      if(status === statusCode.IDLE){
-          dispatch(getMyStripe())
+      if(cartItems && cartItems.length >0 ){
+          dispatch(getMyStripe(cartItems,totalPay))
       }
      
-   },[dispatch,status])
+   },[dispatch,cartItems,totalPay])
 
    if(status===statusCode.PENDING) {
       return <p className="alert alert-warning">Loading Payment...</p>
