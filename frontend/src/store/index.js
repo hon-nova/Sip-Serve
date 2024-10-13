@@ -1,4 +1,6 @@
 import {configureStore, createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import statusCode from '../utils/statusCode';
+
 
 export const getMenu = createAsyncThunk('menu/fetchMenu', async () => {
    const response = await fetch('http://localhost:3001/menu');
@@ -10,8 +12,6 @@ export const getMenu = createAsyncThunk('menu/fetchMenu', async () => {
    const data = JSON.parse(text)  
    return data.menu;  
  });
-
-
 const menuSlice  = createSlice({
    name: 'menu',
    initialState: {menu: [],status: 'idle', error: null},
@@ -87,6 +87,33 @@ const cartSlice = createSlice({
 export const {addToCart, removeFromCart, updateQuantityCart} = cartSlice.actions
 export const menuActions = menuSlice.actions
 
+
+
+export const getMyStripe = createAsyncThunk('myStriple/get', async ()=>{
+   const data = await fetch('http://localhost:3001/create-checkout-session')
+   const result = await data.json()
+   return result
+})
+const paymentSlice = createSlice({
+   name: 'payment',
+   initialState: {data:[], status: statusCode.IDLE},
+   reducers: {
+
+   },
+   extraReducers: (builder)=>{
+      builder.addCase(getMyStripe.fulfilled,(state,action)=>{
+         state.data = action.payload
+         state.status = statusCode.IDLE
+      })
+      builder.addCase(getMyStripe.rejected,(state,action)=>{
+         state.status = statusCode.ERROR
+      })
+      builder.addCase(getMyStripe.pending,(state,action)=>{
+         state.status = statusCode.PENDING
+      })
+   }
+})
+
 const totalPaySlice = createSlice({
    name:'totalPay',
    initialState: 0,
@@ -103,7 +130,8 @@ const store = configureStore({
    reducer: {
       menu: menuSlice.reducer,
       cart: cartSlice.reducer,
-      totalPay:totalPaySlice.reducer
+      totalPay:totalPaySlice.reducer,
+      myStripe: paymentSlice.reducer
    }
 })
 export default store

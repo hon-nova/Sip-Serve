@@ -15,6 +15,34 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+/** STRIPE */
+const stripe = require('stripe')(process.env.STRIPE_PUBLISHABLE_KEY, {
+   apiVersion: '2024-09-30.acacia; custom_checkout_beta=v1;',
+ });
+
+ app.post('/create-checkout-session', async (req, res) => {
+   const session = await stripe.checkout.sessions.create({
+     line_items: [
+       {
+         price_data: {
+           currency: 'usd',
+           product_data: {
+             name: 'T-shirt',
+           },
+           unit_amount: 2000,
+         },
+         quantity: 1,
+       },
+     ],
+     mode: 'payment',
+     ui_mode: 'custom',
+     // The URL of your payment completion page
+     return_url: '{{RETURN_URL}}'
+   });
+ 
+   res.json({clientSecret: session.client_secret});
+ });
+/** END STRIPE */
 const readMenu = async (CSVFILE) => {   
    const data = await fs.readFile(CSVFILE, "utf-8")
    const array = data.split(EOL)

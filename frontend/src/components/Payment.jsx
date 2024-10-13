@@ -63,8 +63,7 @@ export const Payment =()=>{
                   onChange={handleInputChange}/>
          {error.amount && <p className="alert alert-warning">{error.amount}</p>}
          </div>
-         <button type="submit">Pay</button>
-           
+         <button type="submit">Pay</button>           
          </form>
       </div>
       </div>

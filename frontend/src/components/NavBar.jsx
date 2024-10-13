@@ -19,7 +19,7 @@ export const NavBar =()=>{
          </div>
          <div className="d-flex">
             <p className="mx-3"><Link to="/register">Register</Link></p>
-            <p className="mx-3"><Link to="/cart"><i className="bi bi-cart4"></i></Link><span className="myCart">{cartQuantity <10 ? `0`+cartQuantity:cartQuantity}</span></p>
+            <p className="mx-3"><Link to="/cart"><i className="bi bi-cart4"></i></Link><sup><span className="myCart">{cartQuantity <10 ? `0`+cartQuantity:cartQuantity}</span></sup></p>
          </div>
       </div>
    )
