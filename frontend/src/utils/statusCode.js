@@ -1,6 +1,6 @@
 const statusCode ={
    PENDING: "Pending",
-   IDLE:"Idle",
-   ERROR:"SOMETHING WENT WRONG"
+   IDLE:"Receiving data, one moment.",
+   ERROR:"SOMETHING WENT WRONG. TRY AGAIN!"
 }
 export default statusCode

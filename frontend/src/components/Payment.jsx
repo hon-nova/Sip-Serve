@@ -1,71 +1,59 @@
-import { useSelector } from "react-redux"
-import {useState} from 'react'
+import { useSelector,useDispatch } from "react-redux"
+// import {useState} from 'react'
+import statusCode from "../utils/statusCode"
+import {  useCustomCheckout } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import { useEffect } from "react";
+import { getMyStripe } from '../slices/paymentSlice'
+import { Elements } from '@stripe/react-stripe-js';
+
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
+
 export const Payment =()=>{
+   
+   const dispatch = useDispatch()
+   const { data: clientSecret, status, error } = useSelector((state) => state.myStripe);
 
-   const [payment,setPayment]= useState({digit:"",amount:""})
-   const [error,setError] = useState({digit:"",amount:""})
-   const [success,setSuccess] = useState("")
-   const totalPay  = useSelector((state)=>state.totalPay)
-
-   const areValidInputs = ()=>{
-      if(typeof Number(payment.digit) !=='number'){
-         setError((prevState)=>({
-            ...prevState,
-            digit:'This field should contain digits only.'
-         }))
-         return false
-      } else if(typeof parseFloat(payment.amount) !=='number'){
-         setError((prevState)=>({
-            ...prevState,
-            amount: 'Please enter the exact amount shown above.'
-         }))
-         return false
+   useEffect(()=>{
+      if(status === statusCode.IDLE){
+          dispatch(getMyStripe())
       }
-      setSuccess("Success Transaction. Continue shopping? ")
-      setTimeout(()=>
-         setError({digit:"",amount:""}),
-         setSuccess('')
-      ,2000)
-      return true
+     
+   },[dispatch,status])
+
+   if(status===statusCode.PENDING) {
+      return <p className="alert alert-warning">Loading Payment...</p>
    }
-   console.log(`totalPay in Payment::${totalPay}`)
-   const handleSubmitPayment =(e)=>{
-      e.preventDefault()
-      areValidInputs()     
-      
+   if(status ===  statusCode.ERROR){
+      return <p className="alert alert-danger">Error: {error}</p>
    }
-   const handleInputChange =(e)=>{
-      const {name,value} =e.target
-      
-      setPayment((prevState)=>({
-         ...prevState,
-         [name]:parseFloat(value)
-      }))
-      
+   if(status === statusCode.IDLE && clientSecret){
+      const options = {
+         clientSecret
+      }
+      return(
+         <div className="container">
+         <h2>Payment</h2>
+         <Elements stripe={stripePromise} options={options}>
+           <CheckoutForm />
+         </Elements>
+       </div>
+      )
    }
-   console.log(`payment.digit: `,payment.digit)
-   console.log(  `payment.amount: `,payment.amount)
-   return(
-      <div className="container">Payment
-      {success & <p className="alert alert-success">{success}</p>}
-      <div>
-         <form onSubmit={handleSubmitPayment}>
-         <div>
-             <label htmlFor="digit">Enter 16 digits</label><br/>
-             <input type="text" id="digit" name="digit" value={payment.digit}
-               onChange={handleInputChange}
-             />
-             {error.digit && <p className="alert alert-danger">{error.digit}</p>}
-         </div>
-         <div>
-            <label htmlFor="amount">Amount to pay:$ {totalPay.toFixed(2)}</label><br/>
-            <input type="text" id="amount" name="amount" placeholder="Enter exact amount" value={payment.amount}
-                  onChange={handleInputChange}/>
-         {error.amount && <p className="alert alert-warning">{error.amount}</p>}
-         </div>
-         <button type="submit">Pay</button>           
-         </form>
-      </div>
-      </div>
-   )
+   return null;  
+   
 }
+const CheckoutForm = () => {
+   // Using the Stripe custom checkout hook
+   const checkout = useCustomCheckout();
+ 
+   // Example: Displaying the checkout line items (for now logging)
+   console.log(checkout);
+ 
+   return (
+     <div>
+       <h2>Checkout</h2>
+       <pre>{JSON.stringify(checkout.lineItems, null, 2)}</pre>
+     </div>
+   );
+ };

@@ -8,7 +8,9 @@ const fs = require("node:fs/promises");
 const csvFile = path.join(__dirname, "menu.csv");
 const txtFile = path.join(__dirname, "menu.txt");
 const { v4: uuidv4 } = require('uuid');
+import dotenv from 'dotenv'
 
+dotenv.config()
 
 const app = express();
 app.use(cors());
@@ -16,7 +18,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 /** STRIPE */
-const stripe = require('stripe')(process.env.STRIPE_PUBLISHABLE_KEY, {
+const stripe = require('stripe')(process.env.REACT_APP_STRIPE_SECRET_KEY, {
    apiVersion: '2024-09-30.acacia; custom_checkout_beta=v1;',
  });
 

@@ -6,6 +6,8 @@ import { Menu } from './components/Menu'
 import { Cart } from './components/Cart'
 import { RootLayout } from './components/RootLayout';
 import { Payment } from './components/Payment';
+import { Success } from './components/Success'
+import { Cancel } from './components/Cancel'
 
 function App() {
 
@@ -16,6 +18,8 @@ function App() {
       <Route path="/cart" element={<Cart />}></Route>
       <Route path="/menu" element={<Menu />}></Route>
       <Route path="/payment" element={<Payment/>}></Route>
+      <Route path="/success" element={<Success />}></Route>
+      <Route path="/cancel" element={<Cancel />}></Route>
     </Route>
   ))
   return (

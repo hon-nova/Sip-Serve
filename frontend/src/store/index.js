@@ -1,6 +1,6 @@
 import {configureStore, createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import statusCode from '../utils/statusCode';
-
+import paymentSlice from '../slices/paymentSlice'
 
 export const getMenu = createAsyncThunk('menu/fetchMenu', async () => {
    const response = await fetch('http://localhost:3001/menu');
@@ -33,14 +33,14 @@ const menuSlice  = createSlice({
    extraReducers: (builder) => {
       builder
         .addCase(getMenu.pending, (state) => {
-          state.status = 'loading'; 
+          state.status = statusCode.PENDING; 
         })
         .addCase(getMenu.fulfilled, (state, action) => {
-          state.status = 'succeeded'; 
+          state.status = statusCode.IDLE; 
           state.menu = action.payload; 
         })
         .addCase(getMenu.rejected, (state, action) => {
-          state.status = 'failed'; 
+          state.status = statusCode.ERROR; 
           state.error = action.error.message;
         });
     }
@@ -87,33 +87,6 @@ const cartSlice = createSlice({
 export const {addToCart, removeFromCart, updateQuantityCart} = cartSlice.actions
 export const menuActions = menuSlice.actions
 
-
-
-export const getMyStripe = createAsyncThunk('myStriple/get', async ()=>{
-   const data = await fetch('http://localhost:3001/create-checkout-session')
-   const result = await data.json()
-   return result
-})
-const paymentSlice = createSlice({
-   name: 'payment',
-   initialState: {data:[], status: statusCode.IDLE},
-   reducers: {
-
-   },
-   extraReducers: (builder)=>{
-      builder.addCase(getMyStripe.fulfilled,(state,action)=>{
-         state.data = action.payload
-         state.status = statusCode.IDLE
-      })
-      builder.addCase(getMyStripe.rejected,(state,action)=>{
-         state.status = statusCode.ERROR
-      })
-      builder.addCase(getMyStripe.pending,(state,action)=>{
-         state.status = statusCode.PENDING
-      })
-   }
-})
-
 const totalPaySlice = createSlice({
    name:'totalPay',
    initialState: 0,
@@ -131,7 +104,7 @@ const store = configureStore({
       menu: menuSlice.reducer,
       cart: cartSlice.reducer,
       totalPay:totalPaySlice.reducer,
-      myStripe: paymentSlice.reducer
+      myStripe: paymentSlice
    }
 })
 export default store
