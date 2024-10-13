@@ -8,6 +8,7 @@ import { RootLayout } from './components/RootLayout';
 import { Payment } from './components/Payment';
 import { Success } from './components/Success'
 import { Cancel } from './components/Cancel'
+import { CompletePage} from './components/CompletePage'
 
 function App() {
 
@@ -20,6 +21,7 @@ function App() {
       <Route path="/payment" element={<Payment/>}></Route>
       <Route path="/success" element={<Success />}></Route>
       <Route path="/cancel" element={<Cancel />}></Route>
+      <Route path="/complete" element={<CompletePage />}></Route>
     </Route>
   ))
   return (

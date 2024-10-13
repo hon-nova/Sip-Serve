@@ -1,69 +1,64 @@
-import { useSelector,useDispatch } from "react-redux"
-// import {useState} from 'react'
-import statusCode from "../utils/statusCode"
-import {  useCustomCheckout } from '@stripe/react-stripe-js';
+import { useSelector, useDispatch } from "react-redux";
+import statusCode from "../utils/statusCode";
 import { loadStripe } from '@stripe/stripe-js';
-import { useEffect } from "react";
-import { getMyStripe } from '../slices/paymentSlice'
-import { Elements } from '@stripe/react-stripe-js';
-
+import "../css/payment-style.css";
+import { getMyStripe } from '../slices/paymentSlice';
+import { CheckoutForm } from './CheckoutForm'
+import React, { useState, useEffect } from "react";
+import { Elements } from "@stripe/react-stripe-js";
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
-export const Payment =()=>{
-   
-   const dispatch = useDispatch()
-   const { data: clientSecret, status, error } = useSelector((state) => state.myStripe);
-   const cartItems = useSelector((state)=>state.cart)
-   const totalPay  = useSelector((state)=>state.totalPay)
-  
-   console.log(`clientSecret: `,clientSecret)
-   console.log(`cartItems: `,cartItems)
-   console.log(`totalPay: `,totalPay)
-   
+export const Payment = () => {
+   // const dispatch = useDispatch();
+   const { data, status, error } = useSelector((state) => state.myStripe);
+   // const cartItems = useSelector((state) => state.cart);
+   // const totalPay = useSelector((state) => state.totalPay);
 
-   useEffect(()=>{
-      if(cartItems && cartItems.length >0 ){
-         console.log(`dispatch getMyStripe useEffect:  `,dispatch(getMyStripe()))
-          dispatch(getMyStripe({cartItems,totalPay}))
-      }
-     
-   },[dispatch,cartItems,totalPay])
+   const [clientSecret, setClientSecret] = useState("");
+   const [dpmCheckerLink, setDpmCheckerLink] = useState("")
 
-   if(status===statusCode.PENDING) {
-      return <p className="alert alert-warning">Loading Payment...</p>
+   useEffect(() => {
+      // Create PaymentIntent as soon as the page loads
+      fetch("http://localhost:3001/create-payment-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: [{ id: "xl-tshirt", amount: 1000 }] }),
+      })
+        .then((res) => res.json())
+        .then((data) => {         
+            setClientSecret(data.clientSecret);
+            console.log(`clientSecret: `,clientSecret)
+            // [DEV] For demo purposes only
+            setDpmCheckerLink(data.dpmCheckerLink);
+        });
+    }, []);
+   
+   const appearance = {
+      theme: 'stripe',
+    };
+    // Enable the skeleton loader UI for optimal loading.
+    const loader = 'auto';
+
+   if (status === statusCode.PENDING) {
+      return <p className="alert alert-warning">Loading Payment...</p>;
    }
-   if(status ===  statusCode.ERROR){
-      return <p className="alert alert-danger">Error: {error}</p>
+   if (status === statusCode.ERROR) {
+      return <p className="alert alert-danger">Error: {error}</p>;
    }
-   if(status === statusCode.IDLE && clientSecret){
-      const options = {
-         clientSecret,
-         cartItems,
-         totalPay
-      }
-      console.log(`options: `,options.clientSecret)
-      return(
+   if (status === statusCode.IDLE) {     
+      return (
          <div className="container">
-         <h2>Payment</h2>
-         <Elements stripe={stripePromise} options={options}>
-           <CheckoutForm />
+            <h2>Payment</h2>
+            {clientSecret && (
+         <Elements options={{clientSecret, appearance, loader}} stripe={stripePromise}>
+            <CheckoutForm dpmCheckerLink={dpmCheckerLink}/>
          </Elements>
-       </div>
-      )
+        )}
+         </div>
+      );
    }
-   return null;  
-   
-}
-const CheckoutForm = () => {
-   
-   const checkout = useCustomCheckout();   
-   console.log(checkout);
- 
-   return (
-     <div>
-       <h2>Checkout</h2>
-       <pre>{JSON.stringify(checkout.lineItems, null, 2)}</pre>
-     </div>
-   );
- };
+   return null;
+};
+
+

@@ -1,19 +1,19 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import statusCode from "../utils/statusCode";
 
-export const getMyStripe = createAsyncThunk("myStripe/get", async () => {
+export const getMyStripe = createAsyncThunk("myStripe/get", async ({cartItems,totalPay}) => {
   
   try {
     const response = await fetch(
-      "http://localhost:3001/create-checkout-session",{
+      "http://localhost:3001/create-payment-intent",{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-      //   body: JSON.stringify({
-      //    items: cartItems,
-      //    totalPay: totalPay
-      //   })
+        body: JSON.stringify({
+         items: cartItems,
+         totalPay: totalPay
+        })
       }
     );
     console.log(`response: `,response)
