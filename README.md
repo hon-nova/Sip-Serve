@@ -5,7 +5,7 @@
 ![cart](frontend/public/cart2.png)
 <hr/>
 
-![successStripe](frontend/public/successStripe.png)
+![successStripe](frontend/public/stripe.png)
 <hr />
 
 ![receipt](frontend/public/receipt.png)
