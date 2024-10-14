@@ -15,8 +15,9 @@ require('dotenv').config()
 
 const app = express();
 app.use(cors());
+app.use(express.json()); 
 app.use(bodyParser.json());
-app.use(bodyParser.raw({ type: 'application/json' }));
+// app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 /** STRIPE */
@@ -51,12 +52,27 @@ app.post('/create-checkout-session', async (req, res) => {
  });
 const endpointSecret = process.env.endpointSecret;
 
-app.post('/webhook', (req, res) => {
+ app.use((req, res, next) => {
+   if (req.originalUrl === '/webhook') {
+       // Use raw body parser for webhook
+       const rawBodyBuffer = [];
+       req.on('data', chunk => rawBodyBuffer.push(chunk));
+       req.on('end', () => {
+           req.rawBody = Buffer.concat(rawBodyBuffer).toString(); // Concatenate buffer and convert to string
+           next();
+       });
+   } else {
+       // For all other routes, use the standard JSON parser
+       express.json()(req, res, next);
+   }
+});
+
+app.post('/webhook',(req,res) => {
+   console.log(`webhook called starts`)
    const sig = req.headers['stripe-signature'];
-
-    let event;
-
-    try {
+   console.log(`req.headers:  `,req.headers)
+   let event;
+   try {
         event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
     } catch (err) {
         console.error(`Webhook signature verification failed:`, err.message);
@@ -87,19 +103,20 @@ app.post('/webhook', (req, res) => {
  
 
 app.post('/success-order', async(req,res)=>{
-   console.log(`success-order triggered`)
+   // console.log(`success-order triggered`)
    try {
       const {id, cartItems} =req.body
-      console.log(`id: `,id)
+      // console.log(`id: `,id)
    // console.log(`cartItems:  `,cartItems)
    const session = await stripe.checkout.sessions.retrieve(id);
-   console.log(`session backend:  `,session)
+   // console.log(`session backend:  `,session)
    // const paymentIntent = await stripe.paymentIntents.retrieve(id)
       // const paymentIntendId = session.payment_intent
    // console.log(`paymentIntendId:  `,paymentIntendId)
    // const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntendId)
    //  console.log(`paymentIntent:  `,paymentIntent)
-   // const {amount, currency}= paymentIntent
+   // const {amount_total, currency}= paymentIntent
+   //let amount_paid=amount_total/100 REMEMBER
    // console.log(`amount paid:  `,amount)
   /**  console.log(`currency:  `,currency)
 
