@@ -55,16 +55,7 @@ const handleMakePayment = async()=>{
       if(client_secret){
          console.error("clientSecret",client_secret);
       }
-      // const sessionId = session.id
-      const succcessResponse = await fetch(`${apiURL}/success-order`,{
-         method: "POST",
-         headers: {
-            "Content-Type":"application/json"
-         },
-         body:JSON.stringify({id,cartItems})
-      })
-
-      
+     
  }
    return (
       <div className="container">      
