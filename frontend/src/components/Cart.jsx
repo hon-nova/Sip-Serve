@@ -1,8 +1,10 @@
 import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { updateQuantityCart, removeFromCart,setTotalPay } from "../store"
+import { updateQuantityCart, removeFromCart,setTotalPay, addToCart } from "../store"
 import '../css/cart-style.css'
 import { Link } from 'react-router-dom'
+import { loadStripe } from '@stripe/stripe-js';
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
 
 export const Cart =()=>{
@@ -10,6 +12,7 @@ export const Cart =()=>{
    const cartItems = useSelector((state)=>state.cart.cart)
    console.log(`length cartItem in Cart`, cartItems.length)
    const dispatch = useDispatch()
+   const apiURL ='http://localhost:3001'
   
  
   let subTotals =[]
@@ -33,7 +36,26 @@ export const Cart =()=>{
       dispatch(setTotalPay(estTotal))
   },[estTotal,dispatch])
 
- 
+ const handleMakePayment = async()=>{
+      const response = await fetch(`${apiURL}/create-checkout-session`,{
+         method: "POST",
+         headers: {
+            "Content-Type":"application/json"
+         },
+         body: JSON.stringify({cartItems, estTotal})
+      })
+      const session = await response.json()
+      // window.location.href = session.url;
+      if (session.url) {
+         window.location.href = session.url;
+      } else {
+         console.error("Session URL not found:", session);
+      }
+      if(session.clientSecret){
+         console.error("clientSecret", session.clientSecret);
+      }
+      
+ }
    return (
       <div className="container">      
          <h1>My Cart</h1>        
@@ -96,7 +118,8 @@ export const Cart =()=>{
               </table>
             </div>
             <div className="mt-5 d-flex justify-content-center">
-               <Link to="/payment" className="processToPay" >Continue to process</Link>
+               {/* <Link to="/payment" className="processToPay" >Continue to proceed</Link> */}
+               <button className="processToPay" onClick={handleMakePayment}>Continue to proceed</button>
             </div>               
             </div>
          </div>        

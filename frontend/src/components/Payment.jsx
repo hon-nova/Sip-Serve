@@ -20,7 +20,7 @@ export const Payment = () => {
 
    useEffect(() => {
       // Create PaymentIntent as soon as the page loads
-      fetch("http://localhost:3001/create-payment-intent", {
+      fetch("http://localhost:3001/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ items: [{ id: "xl-tshirt", amount: 1000 }] }),

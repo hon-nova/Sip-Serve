@@ -18,57 +18,36 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 /** STRIPE */
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY, {
-   apiVersion: '2024-09-30.acacia; custom_checkout_beta=v1;',
- });
+const stripe = require('stripe')(process.env.STRIPE_TEST_KEY); 
 
- 
- 
-app.post("/create-payment-intent", async (req, res) => {
-   const { items } = req.body;
- 
-   // Create a PaymentIntent with the order amount and currency
-   const paymentIntent = await stripe.paymentIntents.create({
-     amount: calculateOrderAmount(items),
-     currency: "cad",
-     // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
-     automatic_payment_methods: {
-       enabled: true,
-     },
-   });
- 
-   res.send({
-     clientSecret: paymentIntent.client_secret,
-     // [DEV]: For demo purposes only, you should avoid exposing the PaymentIntent ID in the client-side code.
-     dpmCheckerLink: `https://dashboard.stripe.com/settings/payment_methods/review?transaction_id=${paymentIntent.id}`,
-   });
- });
 app.post('/create-checkout-session', async (req, res) => {
    console.log(`create-checkout-session triggered`)
-   // const {items, totalPay } = req.body
-   // console.log(`items `,items)
-   // console.log(`totalPay `,totalPay)
-//    const lineItems = items.map((item) => ({
-//       price_data: {
-//          currency: 'cad',
-//          product_data: {
-//          name: item.name, 
-//          },
-//          unit_amount: item.price * 100, 
-//       },
-//       quantity: item.quantity, 
-//   }));
- 
-//    const session = await stripe.checkout.sessions.create({
-//       payment_method_types: ['card'],
-//       line_items: lineItems,
-//       mode: 'payment',
-//       success_url: 'http://localhost:3000/success',
-//       cancel_url: 'http://localhost:3000/cancel',
-//    });
-
-//    // res.json({ clientSecret: session.id });
-//    res.json({clientSecret: session.client_secret});
+   const {cartItems, estTotal } = req.body
+   // console.log(`cartItems `,cartItems)
+   // console.log(`estTotal `,estTotal)
+   const lineItems = cartItems.map((item) => {
+      let newPrice = item.price.replace("$","")
+      return {
+         price_data: {
+            currency: 'cad',
+            product_data: {
+            name: item.name, 
+            description:item.mealType, 
+            images: [item.photo]
+         },
+         unit_amount: Math.round(newPrice * 100), 
+      },
+      quantity: parseInt(item.quantity), 
+      }     
+  }); 
+   const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: lineItems,
+      mode: 'payment',
+      success_url: 'http://localhost:3000/success',
+      cancel_url: 'http://localhost:3000/cancel',
+   });
+   res.json({url: session.url, clientSecret: session.client_secret,id: session.id});
  });
 /** END STRIPE */
 const readMenu = async (CSVFILE) => {   
