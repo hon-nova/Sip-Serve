@@ -44,16 +44,25 @@ export const Cart =()=>{
          },
          body: JSON.stringify({cartItems, estTotal})
       })
-      const session = await response.json()
-      // window.location.href = session.url;
-      if (session.url) {
-         window.location.href = session.url;
-      } else {
-         console.error("Session URL not found:", session);
+      const {id, url, client_secret} = await response.json()
+      console.log(`sessionId:   `,id)
+      if(url){
+          window.location.href = url;
+      }else {
+         console.error("Session URL not found:");
       }
-      if(session.clientSecret){
-         console.error("clientSecret", session.clientSecret);
+      if(client_secret){
+         console.error("clientSecret",client_secret);
       }
+      // const sessionId = session.id
+      const succcessResponse = await fetch(`${apiURL}/success-order`,{
+         method: "POST",
+         headers: {
+            "Content-Type":"application/json"
+         },
+         body:JSON.stringify({id,cartItems})
+      })
+
       
  }
    return (

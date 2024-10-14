@@ -8,7 +8,8 @@ const fs = require("node:fs/promises");
 const csvFile = path.join(__dirname, "menu.csv");
 const txtFile = path.join(__dirname, "menu.txt");
 const { v4: uuidv4 } = require('uuid');
-const dotenv =require('dotenv') 
+const dotenv =require('dotenv'); 
+const { existsSync } = require("fs");
 
 require('dotenv').config()
 
@@ -21,10 +22,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const stripe = require('stripe')(process.env.STRIPE_TEST_KEY); 
 
 app.post('/create-checkout-session', async (req, res) => {
-   console.log(`create-checkout-session triggered`)
+   // console.log(`create-checkout-session triggered`)
    const {cartItems, estTotal } = req.body
-   // console.log(`cartItems `,cartItems)
-   // console.log(`estTotal `,estTotal)
    const lineItems = cartItems.map((item) => {
       let newPrice = item.price.replace("$","")
       return {
@@ -49,6 +48,49 @@ app.post('/create-checkout-session', async (req, res) => {
    });
    res.json({url: session.url, clientSecret: session.client_secret,id: session.id});
  });
+
+app.post('/success-order', async(req,res)=>{
+   console.log(`success-order triggered`)
+   try {
+      const {id, cartItems} =req.body
+   console.log(`id: `,id)
+   // console.log(`cartItems:  `,cartItems)
+
+   // const session = await stripe.checkout.session.retrieve(sessionId)
+   const session = await stripe.checkout.sessions.retrieve(id);
+   console.log(`session:  `,session)
+   const paymentIntendId = session.payment_intent
+   console.log(`paymentIntendId:  `,paymentIntendId)
+   const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntendId)
+
+   const {amount, currency}= paymentIntent
+   console.log(`amount paid:  `,amount)
+   console.log(`currency:  `,currency)
+
+   const orderId = uuidv4()
+   const orderData = cartItems.map((item)=>({
+      order_id: orderId,
+      name: item.name,
+      price:item.price,
+      quantity:item.quantity,
+      currency,
+      total_pay:amount,
+      order_date: new Date().toISOString()
+   }))
+
+   if(!existsSync('./orders.csv')){
+      writer.pipe(fs.createWriteStream('./orders.csv'))
+   }
+   orderData.forEach((order)=>writer.write(order))
+   write.end()
+   res.status(200).json({successMsg:"Order stored successfully"})
+
+   } catch(error){
+      console.log(error.message)
+      res.status(500).json({errorMsg:"Error processing order!"})
+   }
+   
+})
 /** END STRIPE */
 const readMenu = async (CSVFILE) => {   
    const data = await fs.readFile(CSVFILE, "utf-8")
