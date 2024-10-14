@@ -2,7 +2,7 @@
 ![preview](frontend/public/preview.png)
 <hr/>
 
-![cart](frontend/public/cart.png)
+![cart](frontend/public/cart2.png)
 <hr/>
 
 ![successStripe](frontend/public/successStripe.png)
