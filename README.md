@@ -6,3 +6,6 @@
 <hr/>
 
 ![successStripe](frontend/public/successStripe.png)
+<hr />
+
+![receipt](frontend/public/receipt.png)

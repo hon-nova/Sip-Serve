@@ -15,92 +15,97 @@ require('dotenv').config()
 
 const app = express();
 app.use(cors());
-app.use(express.json()); 
-app.use(bodyParser.json());
-// app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use(bodyParser.urlencoded({ extended: true }));
+ 
 /** STRIPE */
 const stripe = require('stripe')(process.env.STRIPE_TEST_KEY); 
 
+const endpointSecret = process.env.endpointSecret;
+ 
+app.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
+   const sig = request.headers['stripe-signature'];
+   console.log(`JSON.stringify(request.body):   `,JSON.stringify(request.body,null,2))
+   let event;
+ 
+   try {
+     event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+   //   console.log(`event:  `,event)
+   }
+   catch (err) {
+     response.status(400).send(`Webhook Error: ${err.message}`);
+   }
+   console.log('Event type:', event.type);  // This will log the event type
+  console.log('Event data:', event);  // This will log the full event data
+ 
+   // Handle the event
+   switch (event.type) {
+     case 'payment_intent.succeeded':
+       const paymentIntent = event.data.object;
+       console.log('PaymentIntent was successful!', paymentIntent);
+       break;
+     case 'payment_method.payment_failed':
+       const paymentIntentFailed = event.data.object;
+       console.log('PaymentMethod was failed');
+       break;
+      case 'payment_intent.created':
+         const paymentIntentCreated = event.data.object;
+         console.log('PaymentMethod was created');
+         console.log(paymentIntentCreated)
+      break;
+
+      case 'payment_intent.charged':
+         const paymentIntentCharged = event.data.object;
+         console.log('PaymentMethod was charged');
+         console.log(paymentIntentCharged)
+      break;
+
+      case 'charge.updated':
+         const paymentChargeUpdated = event.data.object;
+         console.log('Charge Updated');
+         const paymentIntentId = paymentChargeUpdated.id
+
+
+         console.log(paymentChargeUpdated)
+      break;
+         
+     // ... handle other event types
+     default:
+       console.log(`Unhandled event type ${event.type}`);
+   } 
+   // Return a response to acknowledge receipt of the event
+   response.json({received: true});
+ });
+ 
+app.use(bodyParser.json());
 app.post('/create-checkout-session', async (req, res) => {
-   // console.log(`create-checkout-session triggered`)
+    // console.log(`create-checkout-session triggered`)
+    
    const {cartItems, estTotal } = req.body
    const lineItems = cartItems.map((item) => {
-      let newPrice = item.price.replace("$","")
-      return {
-         price_data: {
-            currency: 'cad',
-            product_data: {
-            name: item.name, 
-            description:item.mealType, 
-            images: [item.photo]
-         },
-         unit_amount: Math.round(newPrice * 100), 
-      },
-      quantity: parseInt(item.quantity), 
-      }     
-  }); 
-   const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: lineItems,
-      mode: 'payment',
-      success_url: 'http://localhost:3000/success',
-      cancel_url: 'http://localhost:3000/cancel',
-   });
-   res.json({url: session.url, clientSecret: session.client_secret,id: session.id});
- });
-const endpointSecret = process.env.endpointSecret;
-
- app.use((req, res, next) => {
-   if (req.originalUrl === '/webhook') {
-       // Use raw body parser for webhook
-       const rawBodyBuffer = [];
-       req.on('data', chunk => rawBodyBuffer.push(chunk));
-       req.on('end', () => {
-           req.rawBody = Buffer.concat(rawBodyBuffer).toString(); // Concatenate buffer and convert to string
-           next();
-       });
-   } else {
-       // For all other routes, use the standard JSON parser
-       express.json()(req, res, next);
-   }
-});
-
-app.post('/webhook',(req,res) => {
-   console.log(`webhook called starts`)
-   const sig = req.headers['stripe-signature'];
-   console.log(`req.headers:  `,req.headers)
-   let event;
-   try {
-        event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-    } catch (err) {
-        console.error(`Webhook signature verification failed:`, err.message);
-        return res.status(400).send(`Webhook Error: ${err.message}`);
-    }    
-   // Handle the event
-   console.log(`switch started`)
-   switch (event.type) {
-      case 'payment_intent.succeeded':
-         const paymentIntent = event.data.object;
-         console.log('PaymentIntent was successful!');
-         console.log(`IMPORTANT: paymentIntent: `, paymentIntent);
-         break;
-      case 'payment_intent.payment_failed':
-         const paymentIntentFailed = event.data.object;
-         console.log('PaymentIntent failed!');
-         break;
-      case 'payment_intent.canceled':
-         console.log('PaymentIntent was canceled. Please go back to the homepage to continue shopping!');
-         break;
-      default:
-         console.log(`Unhandled event type ${event.type}`);
-   }
-
-   // Acknowledge the event was received
-   res.json({ received: true });
-});
- 
+       let newPrice = item.price.replace("$","")
+       return {
+          price_data: {
+             currency: 'cad',
+             product_data: {
+             name: item.name, 
+             description:item.mealType, 
+             images: [item.photo]
+          },
+          unit_amount: Math.round(newPrice * 100), 
+       },
+       quantity: parseInt(item.quantity), 
+       }     
+   }); 
+    const session = await stripe.checkout.sessions.create({
+       payment_method_types: ['card'],
+       line_items: lineItems,
+       mode: 'payment',
+       success_url: 'http://localhost:3000/success',
+       cancel_url: 'http://localhost:3000/cancel',
+    });
+    res.json({url: session.url, clientSecret: session.client_secret,id: session.id});
+  });
 
 app.post('/success-order', async(req,res)=>{
    // console.log(`success-order triggered`)
@@ -194,6 +199,9 @@ app.get("/", (req, res) => {
    res.sendFile(path.join(__dirname, "build", "index.html"));
  });
  app.use(express.static(path.join(__dirname, "build")));
+
+
+
 
 app.listen(PORT, () => {
   console.log(`Lab04AdvancedFullStack is running on: http://localhost:${PORT}`);
