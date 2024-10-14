@@ -36,7 +36,8 @@ export const Cart =()=>{
       dispatch(setTotalPay(estTotal))
   },[estTotal,dispatch])
 
- const handleMakePayment = async()=>{
+const handleMakePayment = async()=>{
+   console.log(`handleMakePayment triggered.`)
       const response = await fetch(`${apiURL}/create-checkout-session`,{
          method: "POST",
          headers: {

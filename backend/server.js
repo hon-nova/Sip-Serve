@@ -16,6 +16,7 @@ require('dotenv').config()
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+app.use(bodyParser.raw({ type: 'application/json' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 /** STRIPE */
@@ -48,24 +49,59 @@ app.post('/create-checkout-session', async (req, res) => {
    });
    res.json({url: session.url, clientSecret: session.client_secret,id: session.id});
  });
+const endpointSecret = process.env.endpointSecret;
+
+app.post('/webhook', (req, res) => {
+   const sig = req.headers['stripe-signature'];
+
+    let event;
+
+    try {
+        event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    } catch (err) {
+        console.error(`Webhook signature verification failed:`, err.message);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+    }    
+   // Handle the event
+   console.log(`switch started`)
+   switch (event.type) {
+      case 'payment_intent.succeeded':
+         const paymentIntent = event.data.object;
+         console.log('PaymentIntent was successful!');
+         console.log(`IMPORTANT: paymentIntent: `, paymentIntent);
+         break;
+      case 'payment_intent.payment_failed':
+         const paymentIntentFailed = event.data.object;
+         console.log('PaymentIntent failed!');
+         break;
+      case 'payment_intent.canceled':
+         console.log('PaymentIntent was canceled. Please go back to the homepage to continue shopping!');
+         break;
+      default:
+         console.log(`Unhandled event type ${event.type}`);
+   }
+
+   // Acknowledge the event was received
+   res.json({ received: true });
+});
+ 
 
 app.post('/success-order', async(req,res)=>{
    console.log(`success-order triggered`)
    try {
       const {id, cartItems} =req.body
-   console.log(`id: `,id)
+      console.log(`id: `,id)
    // console.log(`cartItems:  `,cartItems)
-
-   // const session = await stripe.checkout.session.retrieve(sessionId)
    const session = await stripe.checkout.sessions.retrieve(id);
-   console.log(`session:  `,session)
-   const paymentIntendId = session.payment_intent
-   console.log(`paymentIntendId:  `,paymentIntendId)
-   const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntendId)
-
-   const {amount, currency}= paymentIntent
-   console.log(`amount paid:  `,amount)
-   console.log(`currency:  `,currency)
+   console.log(`session backend:  `,session)
+   // const paymentIntent = await stripe.paymentIntents.retrieve(id)
+      // const paymentIntendId = session.payment_intent
+   // console.log(`paymentIntendId:  `,paymentIntendId)
+   // const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntendId)
+   //  console.log(`paymentIntent:  `,paymentIntent)
+   // const {amount, currency}= paymentIntent
+   // console.log(`amount paid:  `,amount)
+  /**  console.log(`currency:  `,currency)
 
    const orderId = uuidv4()
    const orderData = cartItems.map((item)=>({
@@ -84,11 +120,11 @@ app.post('/success-order', async(req,res)=>{
    orderData.forEach((order)=>writer.write(order))
    write.end()
    res.status(200).json({successMsg:"Order stored successfully"})
-
+*/
    } catch(error){
       console.log(error.message)
       res.status(500).json({errorMsg:"Error processing order!"})
-   }
+   } 
    
 })
 /** END STRIPE */
